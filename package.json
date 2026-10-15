@@ -1,0 +1,68 @@
+{
+  "name": "fraum",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Desktop client for searching and browsing the MiNERVA Archive.",
+  "homepage": "https://minerva-archive.org/",
+  "desktopName": "fraum",
+  "type": "module",
+  "main": "desktop.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "start:desktop": "electron .",
+    "test": "node --test",
+    "pack:linux": "electron-builder --linux AppImage deb",
+    "pack:windows": "electron-builder --win nsis portable",
+    "pack:macos": "electron-builder --mac dmg zip",
+    "pack:macos:arm64": "electron-builder --mac dmg zip --arm64"
+  },
+  "dependencies": {
+    "webtorrent": "^1.9.7"
+  },
+  "devDependencies": {
+    "electron": "^44.7.2",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "org.fraum.archive",
+    "productName": "FRAUM",
+    "asar": true,
+    "files": [
+      "app.js",
+      "desktop.mjs",
+      "index.html",
+      "server.mjs",
+      "styles.css",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "category": "Network",
+      "maintainer": "FRAUM maintainers",
+      "syncDesktopName": true,
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    }
+  }
+}

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10120f">
+    <meta name="description" content="A considered client for searching and browsing the MiNERVA preservation archive.">
+    <title>FRAUM — MiNERVA Archive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="FRAUM home">
+        <span class="brand-mark">F</span>
+        <span>FRAUM<span class="brand-period">.</span></span>
+        <span class="brand-caption">ARCHIVE CLIENT</span>
+      </a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-link active" type="button" data-view="search">Search</button>
+        <button class="nav-link" type="button" data-view="browse">Browse</button>
+      </nav>
+      <a class="source-link" href="https://minerva-archive.org/" target="_blank" rel="noreferrer">
+        <span class="status-dot"></span> MiNERVA archive <span aria-hidden="true">↗</span>
+      </a>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> A living index of digital history</div>
+        <h1>Find a piece<br>of <span>forever.</span></h1>
+        <p class="intro-copy">A quieter way to search the MiNERVA Archive.<br class="desktop-break"> Explore collections and keep the things worth remembering.</p>
+        <div class="intro-meta">
+          <span><span class="tiny-dot"></span> Connected to MiNERVA</span>
+          <span class="meta-divider"></span>
+          <span>Preservation, made personal.</span>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Archive client">
+        <div class="workspace-head">
+          <div>
+            <div class="section-kicker" id="section-kicker">THE INDEX</div>
+            <h2 id="section-title">Search the archive</h2>
+          </div>
+          <div class="workspace-count"><span class="live-pulse"></span><span id="connection-label">Connecting</span></div>
+        </div>
+
+        <section id="search-view" class="view-panel">
+          <form id="search-form" class="search-bar">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+            <input id="query" type="search" autocomplete="off" placeholder="Search games, systems, publishers…" aria-label="Search archive">
+            <kbd>ENTER</kbd>
+            <button class="search-submit" type="submit" aria-label="Submit search">↗</button>
+          </form>
+          <div class="filter-row" aria-label="Search filters">
+            <label class="filter-select"><span>Collection</span><select id="group-filter"><option value="">All collections</option></select></label>
+            <label class="filter-select"><span>System</span><select id="console-filter"><option value="">All systems</option></select></label>
+            <label class="filter-select"><span>Region</span><select id="region-filter"><option value="">All regions</option></select></label>
+            <label class="filter-select"><span>Publisher</span><select id="manufacturer-filter"><option value="">All publishers</option></select></label>
+            <label class="size-filter"><span>Size · MB</span><input id="min-size" type="number" min="0" placeholder="Min"><i>—</i><input id="max-size" type="number" min="0" placeholder="Max"></label>
+            <label class="token-filter"><input id="tokenised-search" type="checkbox"><span class="checkmark"></span><span>Match words</span></label>
+          </div>
+          <div class="results-heading">
+            <p id="search-status" aria-live="polite">Start with a title, system, or keyword.</p>
+            <span id="result-total" class="result-total"></span>
+          </div>
+          <div id="results" class="results-list" aria-live="polite"></div>
+          <div id="pagination" class="pagination" hidden>
+            <button id="prev-page" type="button">← Previous</button>
+            <span id="page-info">Page 1</span>
+            <button id="next-page" type="button">Next →</button>
+          </div>
+          <div class="empty-state" id="search-empty">
+            <span class="empty-glyph">⌕</span>
+            <span>Good things take a moment.</span>
+            <small>Enter at least three characters to begin your search.</small>
+          </div>
+        </section>
+
+        <section id="browse-view" class="view-panel" hidden>
+          <div class="browse-topline">
+            <div id="breadcrumbs" class="breadcrumbs"></div>
+            <input id="directory-search" type="search" placeholder="Filter this directory…" aria-label="Filter directory">
+          </div>
+          <div id="directory-list" class="directory-list"></div>
+          <div id="directory-pagination" class="pagination" hidden>
+            <button id="directory-prev" type="button">← Previous</button>
+            <span id="directory-page-info">Page 1</span>
+            <button id="directory-next" type="button">Next →</button>
+          </div>
+          <div id="browse-empty" class="empty-state" hidden>
+            <span class="empty-glyph">⌁</span>
+            <span>This folder is quiet.</span>
+            <small>Try a different search or open another collection.</small>
+          </div>
+        </section>
+      </section>
+
+      <footer class="site-footer">
+        <span>Made for curious minds.</span>
+        <span>In memory of the collections that came before.</span>
+        <a href="https://minerva-archive.org/" target="_blank" rel="noreferrer">Visit MiNERVA ↗</a>
+      </footer>
+    </main>
+  </body>
+</html>
