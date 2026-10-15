@@ -17,10 +17,17 @@ jobs:
         include:
           - os: windows-latest
             platform: windows
+            artifact_path: dist/*.exe
           - os: macos-15-intel
             platform: macos
+            artifact_path: |
+              dist/*.dmg
+              dist/*.zip
           - os: ubuntu-22.04
             platform: linux
+            artifact_path: |
+              dist/*.AppImage
+              dist/*.deb
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +41,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: fraum-${{ matrix.platform }}
-          path: dist/*
+          path: ${{ matrix.artifact_path }}
           if-no-files-found: error
 
   package-macos-arm64:
@@ -51,7 +58,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: fraum-macos-arm64
-          path: dist/*
+          path: |
+            dist/*.dmg
+            dist/*.zip
           if-no-files-found: error
 
   release:
