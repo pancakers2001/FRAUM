@@ -130,9 +130,9 @@ kbd { flex: none; padding: 4px 6px; border: 1px solid var(--line); border-radius
 .item-menu summary { display: grid; width: 29px; height: 29px; place-items: center; border: 1px solid var(--line); border-radius: 4px; color: #aeb2a6; cursor: pointer; list-style: none; }
 .item-menu summary::-webkit-details-marker { display: none; }
 .item-menu summary:hover, .item-menu[open] summary { border-color: rgba(199, 243, 106, .45); color: var(--lime); }
-.item-menu-popover { position: absolute; z-index: 2; top: calc(100% + 5px); right: 0; display: grid; min-width: 145px; padding: 4px; border: 1px solid var(--line); border-radius: 6px; background: #20231e; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
-.item-menu-popover button, .item-menu-popover a { padding: 8px 9px; border: 0; border-radius: 3px; background: transparent; color: var(--text); font: 10px var(--font); text-align: left; text-decoration: none; cursor: pointer; white-space: nowrap; }
-.item-menu-popover button:hover, .item-menu-popover a:hover { background: rgba(199, 243, 106, .08); color: var(--lime); }
+.item-menu-popover { position: absolute; z-index: 2; top: calc(100% + 5px); right: 0; display: grid; min-width: 145px; padding: 4px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-raised); box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
+.item-menu-popover button, .item-menu-popover a { padding: 8px 9px; border: 0; border-radius: 3px; background: var(--panel-raised); color: var(--text); font: 10px var(--font); text-align: left; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.item-menu-popover button:hover, .item-menu-popover a:hover { background: #292e21; color: var(--lime); }
 .queue-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 15px; }
 .queue-heading h3 { margin: 0; font-size: 13px; font-weight: 600; }
 .queue-heading p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }

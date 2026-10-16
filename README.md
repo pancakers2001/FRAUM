@@ -24,11 +24,11 @@ The packages are written to `dist/`. Windows builds include only a portable exec
 
 Add files to the persistent download queue from the menu next to each Download button. Open the Queue tab to remove queued files or send all queued downloads to your browser. Items remain in the queue until you remove them.
 
-Pushing a version tag such as `v1.0.3` to GitHub builds all supported packages and publishes them as assets on a GitHub Release. The workflow also runs tests before packaging each platform. To publish a release:
+Pushing a version tag such as `v1.0.4` to GitHub builds all supported packages and publishes them as assets on a GitHub Release. The workflow also runs tests before packaging each platform. To publish a release:
 
 ```sh
-git tag v1.0.3
-git push origin v1.0.3
+git tag v1.0.4
+git push origin v1.0.4
 ```
 
 Running the workflow manually from the Actions tab builds downloadable workflow artifacts but does not publish a release.
