@@ -1,6 +1,6 @@
 {
   "name": "fraum",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Desktop client for searching and browsing the MiNERVA Archive.",
   "homepage": "https://minerva-archive.org/",
@@ -12,7 +12,7 @@
     "start:desktop": "electron .",
     "test": "node --test",
     "pack:linux": "electron-builder --linux AppImage deb --publish never",
-    "pack:windows": "electron-builder --win nsis portable --publish never",
+    "pack:windows": "electron-builder --win portable --publish never",
     "pack:macos": "electron-builder --mac dmg zip --publish never",
     "pack:macos:arm64": "electron-builder --mac dmg zip --arm64 --publish never"
   },
@@ -49,13 +49,8 @@
     },
     "win": {
       "target": [
-        "nsis",
         "portable"
       ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true
     },
     "mac": {
       "category": "public.app-category.utilities",
