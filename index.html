@@ -24,6 +24,7 @@
       <nav class="main-nav" aria-label="Main navigation">
         <button class="nav-link active" type="button" data-view="search">Search</button>
         <button class="nav-link" type="button" data-view="browse">Browse</button>
+        <button class="nav-link queue-nav" type="button" data-view="queue">Queue <span id="queue-count" class="queue-count" hidden>0</span></button>
       </nav>
       <a class="source-link" href="https://minerva-archive.org/" target="_blank" rel="noreferrer">
         <span class="status-dot"></span> MiNERVA archive <span aria-hidden="true">↗</span>
@@ -98,6 +99,22 @@
             <span class="empty-glyph">⌁</span>
             <span>This folder is quiet.</span>
             <small>Try a different search or open another collection.</small>
+          </div>
+        </section>
+
+        <section id="queue-view" class="view-panel" hidden>
+          <div class="queue-heading">
+            <div>
+              <h3>Queued downloads</h3>
+              <p id="queue-status" aria-live="polite">Add files from search or browse.</p>
+            </div>
+            <button id="download-all" class="primary-action" type="button" disabled>↓ Download all</button>
+          </div>
+          <div id="queue-list" class="results-list"></div>
+          <div id="queue-empty" class="empty-state">
+            <span class="empty-glyph">↓</span>
+            <span>Your queue is empty.</span>
+            <small>Use the menu beside a download to add files here.</small>
           </div>
         </section>
       </section>

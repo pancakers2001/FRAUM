@@ -58,6 +58,8 @@ body::before {
 .nav-link { position: relative; padding: 0; border: 0; background: transparent; color: var(--muted); font: 500 12px var(--font); cursor: pointer; }
 .nav-link:hover, .nav-link.active { color: var(--text); }
 .nav-link.active::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--lime); content: ""; }
+.queue-nav { display: inline-flex; align-items: center; gap: 6px; }
+.queue-count { display: grid; min-width: 17px; height: 17px; place-items: center; padding: 0 4px; border-radius: 9px; background: rgba(199, 243, 106, .14); color: var(--lime); font: 9px var(--mono); }
 .source-link { display: flex; align-items: center; gap: 8px; color: #b8bcaf; font-size: 11px; text-decoration: none; }
 .source-link > span:last-child { color: var(--muted); }
 .status-dot, .tiny-dot, .live-pulse { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--lime); }
@@ -124,6 +126,22 @@ kbd { flex: none; padding: 4px 6px; border: 1px solid var(--line); border-radius
 .result-actions .download-action, .directory-entry .download-action { border-color: rgba(199, 243, 106, .25); color: var(--lime); }
 .result-actions .download-action:hover, .directory-entry .download-action:hover { border-color: var(--lime); background: rgba(199, 243, 106, .08); color: var(--lime); }
 .download-action[aria-busy="true"] { opacity: .72; cursor: wait; }
+.item-menu { position: relative; }
+.item-menu summary { display: grid; width: 29px; height: 29px; place-items: center; border: 1px solid var(--line); border-radius: 4px; color: #aeb2a6; cursor: pointer; list-style: none; }
+.item-menu summary::-webkit-details-marker { display: none; }
+.item-menu summary:hover, .item-menu[open] summary { border-color: rgba(199, 243, 106, .45); color: var(--lime); }
+.item-menu-popover { position: absolute; z-index: 2; top: calc(100% + 5px); right: 0; display: grid; min-width: 145px; padding: 4px; border: 1px solid var(--line); border-radius: 6px; background: #20231e; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
+.item-menu-popover button, .item-menu-popover a { padding: 8px 9px; border: 0; border-radius: 3px; background: transparent; color: var(--text); font: 10px var(--font); text-align: left; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.item-menu-popover button:hover, .item-menu-popover a:hover { background: rgba(199, 243, 106, .08); color: var(--lime); }
+.queue-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 15px; }
+.queue-heading h3 { margin: 0; font-size: 13px; font-weight: 600; }
+.queue-heading p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+.primary-action { min-height: 34px; padding: 0 11px; border: 1px solid rgba(199, 243, 106, .25); border-radius: 5px; background: rgba(199, 243, 106, .08); color: var(--lime); font: 10px var(--font); cursor: pointer; }
+.primary-action:hover:not(:disabled) { border-color: var(--lime); background: rgba(199, 243, 106, .14); }
+.primary-action:disabled { opacity: .45; cursor: default; }
+.queue-remove { color: #aeb2a6 !important; }
+.queue-remove:hover { color: #ffaaa0 !important; border-color: rgba(255, 170, 160, .4) !important; }
+.queue-card .result-details { padding-left: 4px; }
 .pagination { display: flex; align-items: center; justify-content: center; gap: 18px; padding-top: 17px; color: #999d91; font: 10px var(--mono); }
 .pagination button { padding: 7px 10px; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: #c3c6bb; font: 10px var(--font); cursor: pointer; }
 .pagination button:disabled { opacity: .35; cursor: default; }
@@ -144,6 +162,7 @@ kbd { flex: none; padding: 4px 6px; border: 1px solid var(--line); border-radius
 .directory-name.directory-file-name { cursor: default; }
 .directory-name:hover { color: var(--lime); }
 .directory-size { flex: none; color: #818579; font: 9px var(--mono); }
+.directory-entry .result-actions { margin-left: auto; }
 .directory-entry .download-action { display: inline-flex; height: 29px; flex: none; align-items: center; justify-content: center; padding: 0 9px; border: 1px solid var(--line); border-radius: 4px; color: var(--lime); font: 9px var(--font); text-decoration: none; }
 .directory-entry .download-action:hover { border-color: var(--lime); background: rgba(199, 243, 106, .08); color: var(--lime); }
 

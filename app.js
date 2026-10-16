@@ -16,6 +16,11 @@ const directorySearch = document.querySelector("#directory-search");
 const breadcrumbs = document.querySelector("#breadcrumbs");
 const browseEmpty = document.querySelector("#browse-empty");
 const connectionLabel = document.querySelector("#connection-label");
+const queueList = document.querySelector("#queue-list");
+const queueEmpty = document.querySelector("#queue-empty");
+const queueStatus = document.querySelector("#queue-status");
+const queueCount = document.querySelector("#queue-count");
+const downloadAllButton = document.querySelector("#download-all");
 const filters = {
   group: document.querySelector("#group-filter"),
   console: document.querySelector("#console-filter"),
@@ -35,6 +40,121 @@ let directoryPath = "/browse/";
 let directoryEntries = [];
 let directoryOffset = 0;
 const downloadPreparations = new WeakMap();
+const queueStorageKey = "fraum-download-queue";
+let downloadQueue = loadQueue();
+
+function loadQueue() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(queueStorageKey) || "[]");
+    if (!Array.isArray(stored)) return [];
+    return stored.filter(item =>
+      Number.isSafeInteger(item.id) && item.id > 0 &&
+      typeof item.name === "string" && typeof item.fullPath === "string"
+    );
+  } catch (error) {
+    console.warn("Could not restore the download queue:", error);
+    return [];
+  }
+}
+
+function saveQueue() {
+  try {
+    localStorage.setItem(queueStorageKey, JSON.stringify(downloadQueue));
+  } catch (error) {
+    console.error("Could not save the download queue:", error);
+    queueStatus.textContent = "Could not save queue changes in this browser.";
+  }
+}
+
+function renderQueue() {
+  queueList.replaceChildren(...downloadQueue.map((item, index) => {
+    const card = document.createElement("article");
+    card.className = "result-card queue-card";
+    const details = document.createElement("div");
+    details.className = "result-details";
+    const title = document.createElement("div");
+    title.className = "result-name";
+    title.textContent = item.name;
+    const path = document.createElement("div");
+    path.className = "result-path";
+    path.textContent = item.fullPath;
+    details.append(title, path);
+
+    const actions = document.createElement("div");
+    actions.className = "result-actions";
+    const download = createDownloadLink(item.id, "↓ Download");
+    actions.append(download);
+    const remove = document.createElement("button");
+    remove.className = "queue-remove";
+    remove.type = "button";
+    remove.dataset.removeQueueId = String(item.id);
+    remove.setAttribute("aria-label", `Remove ${item.name} from queue`);
+    remove.textContent = "Remove";
+    actions.append(remove);
+    card.append(details, actions);
+    card.style.animationDelay = `${Math.min(index, 12) * 20}ms`;
+    return card;
+  }));
+  queueEmpty.hidden = downloadQueue.length > 0;
+  queueCount.textContent = String(downloadQueue.length);
+  queueCount.hidden = downloadQueue.length === 0;
+  downloadAllButton.disabled = downloadQueue.length === 0;
+  if (!downloadAllButton.disabled) queueStatus.textContent = `${downloadQueue.length} file${downloadQueue.length === 1 ? "" : "s"} ready to download.`;
+  else if (!downloadAllButton.dataset.downloading) queueStatus.textContent = "Add files from search or browse.";
+}
+
+function enqueueDownload(item) {
+  if (downloadQueue.some(queued => queued.id === item.id)) {
+    queueStatus.textContent = `${item.name} is already in the queue.`;
+    return;
+  }
+  downloadQueue.push(item);
+  saveQueue();
+  renderQueue();
+  queueStatus.textContent = `Added ${item.name} to the queue.`;
+}
+
+function removeFromQueue(id) {
+  downloadQueue = downloadQueue.filter(item => item.id !== id);
+  saveQueue();
+  renderQueue();
+}
+
+function createDownloadLink(id, label = "↓ Download") {
+  const link = document.createElement("a");
+  link.className = "download-action";
+  link.href = `/api/download?id=${encodeURIComponent(id)}`;
+  link.download = "";
+  link.dataset.downloadId = String(id);
+  link.textContent = label;
+  return link;
+}
+
+function createItemMenu(item) {
+  const menu = document.createElement("details");
+  menu.className = "item-menu";
+  const toggle = document.createElement("summary");
+  toggle.setAttribute("aria-label", `More actions for ${item.name}`);
+  toggle.title = "More actions";
+  toggle.textContent = "☰";
+  menu.append(toggle);
+
+  const popover = document.createElement("div");
+  popover.className = "item-menu-popover";
+  const add = document.createElement("button");
+  add.type = "button";
+  add.dataset.addQueueId = String(item.id);
+  add.dataset.queuePath = item.fullPath;
+  add.textContent = "Add to queue";
+  const details = document.createElement("a");
+  details.href = `${archiveUrl}/rom?id=${encodeURIComponent(item.id)}`;
+  details.target = "_blank";
+  details.rel = "noreferrer";
+  details.textContent = "View details ↗";
+  popover.append(add, details);
+  menu.append(popover);
+  return menu;
+}
 
 async function api(path) {
   const response = await fetch(path);
@@ -90,18 +210,10 @@ function createResultCard(result, index) {
 
   const actions = document.createElement("div");
   actions.className = "result-actions";
-  const recordLink = document.createElement("a");
-  recordLink.href = `${archiveUrl}/rom?id=${encodeURIComponent(result.id)}`;
-  recordLink.target = "_blank";
-  recordLink.rel = "noreferrer";
-  recordLink.textContent = "Details ↗";
-  actions.append(recordLink);
-  const downloadLink = document.createElement("a");
-  downloadLink.className = "download-action";
-  downloadLink.href = `/api/download?id=${encodeURIComponent(result.id)}`;
-  downloadLink.download = "";
-  downloadLink.textContent = "↓ Download";
-  actions.append(downloadLink);
+  actions.append(
+    createDownloadLink(result.id),
+    createItemMenu({ id: result.id, name, fullPath: result.full_path })
+  );
   card.append(icon, details, actions);
   return card;
 }
@@ -281,13 +393,15 @@ function renderDirectory(entries) {
       row.append(size);
     }
     if (!entry.isDirectory && entry.id) {
-      const download = document.createElement("a");
-      download.className = "download-action";
-      download.href = `/api/download?id=${encodeURIComponent(entry.id)}`;
-      download.download = "";
+      const actions = document.createElement("div");
+      actions.className = "result-actions";
+      const download = createDownloadLink(entry.id);
       download.setAttribute("aria-label", `Download ${entry.name}`);
-      download.textContent = "↓ Download";
-      row.append(download);
+      actions.append(
+        download,
+        createItemMenu({ id: entry.id, name: entry.name, fullPath: entry.path })
+      );
+      row.append(actions);
     }
     directoryList.append(row);
   }
@@ -329,10 +443,16 @@ function openView(viewName) {
     button.classList.toggle("active", button.dataset.view === viewName);
     button.setAttribute("aria-current", button.dataset.view === viewName ? "page" : "false");
   }
-  document.querySelector("#section-kicker").textContent = viewName === "browse" ? "THE COLLECTIONS" : "THE INDEX";
-  document.querySelector("#section-title").textContent = viewName === "browse" ? "Browse collections" : "Search the archive";
+  const headings = {
+    search: ["THE INDEX", "Search the archive"],
+    browse: ["THE COLLECTIONS", "Browse collections"],
+    queue: ["YOUR DOWNLOADS", "Download queue"]
+  };
+  document.querySelector("#section-kicker").textContent = headings[viewName][0];
+  document.querySelector("#section-title").textContent = headings[viewName][1];
   document.querySelector("#search-view").hidden = viewName !== "search";
   document.querySelector("#browse-view").hidden = viewName !== "browse";
+  document.querySelector("#queue-view").hidden = viewName !== "queue";
   if (viewName === "browse" && directoryEntries.length === 0) loadDirectory(directoryPath);
 }
 
@@ -351,6 +471,25 @@ document.addEventListener("focusin", event => {
   if (link) warmDownload(link);
 });
 document.addEventListener("click", event => {
+  const addButton = event.target.closest?.("[data-add-queue-id]");
+  if (addButton) {
+    const row = addButton.closest(".result-card, .directory-entry");
+    const id = Number(addButton.dataset.addQueueId);
+    const itemName = row?.querySelector(".result-name, .directory-file-name")?.textContent;
+    const itemPath = addButton.dataset.queuePath || row?.querySelector(".result-path")?.textContent || itemName;
+    const item = itemName && { id, name: itemName, fullPath: itemPath };
+    if (item) enqueueDownload(item);
+    else queueStatus.textContent = "Could not find this file to add it.";
+    addButton.closest("details")?.removeAttribute("open");
+    return;
+  }
+
+  const removeButton = event.target.closest?.("[data-remove-queue-id]");
+  if (removeButton) {
+    removeFromQueue(Number(removeButton.dataset.removeQueueId));
+    return;
+  }
+
   const link = event.target.closest?.("a.download-action");
   if (!link) return;
   if (link.dataset.busy) {
@@ -358,6 +497,25 @@ document.addEventListener("click", event => {
     return;
   }
   showDownloadFeedback(link);
+});
+downloadAllButton.addEventListener("click", () => {
+  const queuedItems = [...downloadQueue];
+  if (!queuedItems.length || downloadAllButton.dataset.downloading) return;
+  downloadAllButton.dataset.downloading = "true";
+  downloadAllButton.disabled = true;
+  const downloadLinks = queuedItems.map(item =>
+    queueList.querySelector(`a[data-download-id="${item.id}"]`)
+  ).filter(Boolean);
+  for (const link of downloadLinks) {
+    link.click();
+  }
+  delete downloadAllButton.dataset.downloading;
+  downloadAllButton.disabled = downloadQueue.length === 0;
+  if (downloadLinks.length === 0) {
+    queueStatus.textContent = "Could not find any download links in the queue.";
+    return;
+  }
+  queueStatus.textContent = `Sent ${downloadLinks.length} download request${downloadLinks.length === 1 ? "" : "s"} to your browser. Items remain queued until you remove them.`;
 });
 queryInput.addEventListener("input", () => scheduleSearch());
 for (const control of Object.values(filters)) control.addEventListener("change", () => scheduleSearch(true, 900));
@@ -386,6 +544,7 @@ for (const button of document.querySelectorAll(".nav-link")) {
 }
 
 try {
+  renderQueue();
   const availableFilters = await api("/api/filters");
   populateFilter(filters.group, availableFilters.groups);
   populateFilter(filters.console, availableFilters.consoles);

@@ -22,14 +22,29 @@ npm run pack:linux
 
 The packages are written to `dist/`. Windows builds include only a portable executable, macOS builds include DMGs for Intel and Apple Silicon, and Linux builds include an AppImage. The Windows app runs without an installer. GitHub Actions builds the Intel macOS package on `macos-15-intel` and Apple Silicon on `macos-15`.
 
-Pushing a version tag such as `v1.0.2` to GitHub builds all supported packages and publishes them as assets on a GitHub Release. The workflow also runs tests before packaging each platform. To publish a release:
+Add files to the persistent download queue from the menu next to each Download button. Open the Queue tab to remove queued files or send all queued downloads to your browser. Items remain in the queue until you remove them.
+
+Pushing a version tag such as `v1.0.3` to GitHub builds all supported packages and publishes them as assets on a GitHub Release. The workflow also runs tests before packaging each platform. To publish a release:
 
 ```sh
-git tag v1.0.2
-git push origin v1.0.2
+git tag v1.0.3
+git push origin v1.0.3
 ```
 
 Running the workflow manually from the Actions tab builds downloadable workflow artifacts but does not publish a release.
+
+### macOS: “FRAUM is damaged and can’t be opened”
+
+The macOS DMGs are not signed or notarized, so Gatekeeper may show a “damaged” warning even when the app downloaded correctly. Only use this workaround for a FRAUM copy downloaded from the [official GitHub Releases](https://github.com/pancakers2001/FRAUM/releases) page.
+
+1. Cancel the warning, drag FRAUM from the mounted disk image into Applications, and eject the disk image.
+2. Open Terminal and run:
+
+   ```sh
+   xattr -dr com.apple.quarantine /Applications/FRAUM.app
+   ```
+
+3. Open FRAUM from Applications.
 
 ## Run in a browser
 
