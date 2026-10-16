@@ -8,6 +8,9 @@ import WebTorrent from "webtorrent";
 const root = fileURLToPath(new URL(".", import.meta.url));
 const archiveOrigin = "https://minerva-archive.org";
 const port = Number(process.env.PORT || 4173);
+const searchCache = new Map();
+const searchCacheTtl = 60_000;
+const maxSearchCacheEntries = 50;
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -214,9 +217,35 @@ async function handleApi(requestUrl, response) {
       }
       const apiUrl = new URL("/v1/api/rom/search", archiveOrigin);
       for (const [key, value] of requestUrl.searchParams) apiUrl.searchParams.set(key, value);
-      const archiveResponse = await fetch(apiUrl);
-      response.writeHead(archiveResponse.status, { "Content-Type": "application/json; charset=utf-8" });
-      response.end(await archiveResponse.text());
+      const cached = searchCache.get(apiUrl.href);
+      if (cached && cached.expiresAt > Date.now()) {
+        searchCache.delete(apiUrl.href);
+        searchCache.set(apiUrl.href, cached);
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        response.end(cached.body);
+        return;
+      }
+      if (cached) searchCache.delete(apiUrl.href);
+
+      const controller = new AbortController();
+      const abortOnDisconnect = () => {
+        if (!response.writableEnded) controller.abort();
+      };
+      response.once("close", abortOnDisconnect);
+      try {
+        const archiveResponse = await fetch(apiUrl, { signal: controller.signal });
+        const body = await archiveResponse.text();
+        if (archiveResponse.ok) {
+          searchCache.set(apiUrl.href, { body, expiresAt: Date.now() + searchCacheTtl });
+          while (searchCache.size > maxSearchCacheEntries) {
+            searchCache.delete(searchCache.keys().next().value);
+          }
+        }
+        response.writeHead(archiveResponse.status, { "Content-Type": "application/json; charset=utf-8" });
+        response.end(body);
+      } finally {
+        response.off("close", abortOnDisconnect);
+      }
       return;
     }
 
@@ -250,6 +279,7 @@ async function handleApi(requestUrl, response) {
     response.writeHead(404);
     response.end("Not found");
   } catch (error) {
+    if (response.destroyed || response.writableEnded) return;
     if (!response.headersSent) {
       response.writeHead(502, { "Content-Type": "application/json; charset=utf-8" });
       response.end(JSON.stringify({ error: error.message || "Could not reach Minerva Archive." }));

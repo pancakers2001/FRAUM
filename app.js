@@ -1,6 +1,8 @@
 const archiveUrl = "https://minerva-archive.org";
 const pageSize = 100;
 const directoryPageSize = 60;
+const searchTimeout = 60_000;
+const slowSearchNotice = 5_000;
 const searchForm = document.querySelector("#search-form");
 const queryInput = document.querySelector("#query");
 const resultList = document.querySelector("#results");
@@ -127,12 +129,26 @@ async function search() {
   }
 
   requestController = new AbortController();
+  const controller = requestController;
+  const hasActiveFilters = Object.values(filters).some(control =>
+    control.type === "checkbox" ? control.checked : control.value
+  );
+  const slowSearchTimer = setTimeout(() => {
+    if (!controller.signal.aborted && requestController === controller) {
+      searchStatus.textContent = hasActiveFilters
+        ? "Still narrowing results in MiNERVA’s index…"
+        : "Still searching MiNERVA’s index…";
+    }
+  }, slowSearchNotice);
+  const timeoutTimer = setTimeout(() => {
+    controller.abort(new DOMException("Search timed out.", "TimeoutError"));
+  }, searchTimeout);
   searchStatus.textContent = "Searching the archive…";
   searchEmpty.hidden = true;
   pagination.hidden = true;
   resultList.replaceChildren();
   try {
-    const response = await fetch(`/api/search?${params}`, { signal: requestController.signal });
+    const response = await fetch(`/api/search?${params}`, { signal: controller.signal });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || `Search failed (${response.status})`);
     if (query !== currentQuery) return;
@@ -155,19 +171,27 @@ async function search() {
     document.querySelector("#next-page").disabled = !moreResults;
     setConnection(true);
   } catch (error) {
-    if (error.name === "AbortError") return;
-    searchStatus.textContent = "The archive could not be reached.";
+    const timedOut = controller.signal.reason?.name === "TimeoutError";
+    if (error.name === "AbortError" && !timedOut) return;
+    searchStatus.textContent = timedOut ? "The archive search timed out." : "The archive could not be reached.";
     searchEmpty.hidden = false;
-    searchEmpty.querySelector("span:not(.empty-glyph)").textContent = "The archive is taking a moment.";
-    searchEmpty.querySelector("small").textContent = error.message;
+    searchEmpty.querySelector("span:not(.empty-glyph)").textContent = timedOut
+      ? "MiNERVA is taking longer than usual."
+      : "The archive is unavailable.";
+    searchEmpty.querySelector("small").textContent = timedOut
+      ? "Try the search again in a moment."
+      : error.message;
     setConnection(false);
+  } finally {
+    clearTimeout(slowSearchTimer);
+    clearTimeout(timeoutTimer);
   }
 }
 
-function scheduleSearch(resetPage = true) {
+function scheduleSearch(resetPage = true, delay = 300) {
   clearTimeout(searchTimer);
   if (resetPage) currentOffset = 0;
-  searchTimer = setTimeout(search, 300);
+  searchTimer = setTimeout(search, delay);
 }
 
 function renderBreadcrumbs(items) {
@@ -275,7 +299,7 @@ searchForm.addEventListener("submit", event => {
   search();
 });
 queryInput.addEventListener("input", () => scheduleSearch());
-for (const control of Object.values(filters)) control.addEventListener("change", () => scheduleSearch());
+for (const control of Object.values(filters)) control.addEventListener("change", () => scheduleSearch(true, 900));
 directorySearch.addEventListener("input", filterDirectory);
 document.querySelector("#directory-next").addEventListener("click", () => {
   directoryOffset += directoryPageSize;

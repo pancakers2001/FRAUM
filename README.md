@@ -22,11 +22,11 @@ npm run pack:linux
 
 The packages are written to `dist/`. Windows builds include only a portable executable, macOS builds include DMGs for Intel and Apple Silicon, and Linux builds include an AppImage. The Windows app runs without an installer. GitHub Actions builds the Intel macOS package on `macos-15-intel` and Apple Silicon on `macos-15`.
 
-Pushing the `v1.0.0` version tag to GitHub builds all supported packages and publishes them as assets on a GitHub Release. The workflow also runs tests before packaging each platform. To publish a release:
+Pushing a version tag such as `v1.0.1` to GitHub builds all supported packages and publishes them as assets on a GitHub Release. The workflow also runs tests before packaging each platform. To publish a release:
 
 ```sh
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.1
+git push origin v1.0.1
 ```
 
 Running the workflow manually from the Actions tab builds downloadable workflow artifacts but does not publish a release.
