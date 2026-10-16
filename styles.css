@@ -123,6 +123,7 @@ kbd { flex: none; padding: 4px 6px; border: 1px solid var(--line); border-radius
 .result-actions a:hover, .result-actions button:hover { border-color: rgba(199, 243, 106, .45); color: var(--lime); }
 .result-actions .download-action, .directory-entry .download-action { border-color: rgba(199, 243, 106, .25); color: var(--lime); }
 .result-actions .download-action:hover, .directory-entry .download-action:hover { border-color: var(--lime); background: rgba(199, 243, 106, .08); color: var(--lime); }
+.download-action[aria-busy="true"] { opacity: .72; cursor: wait; }
 .pagination { display: flex; align-items: center; justify-content: center; gap: 18px; padding-top: 17px; color: #999d91; font: 10px var(--mono); }
 .pagination button { padding: 7px 10px; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: #c3c6bb; font: 10px var(--font); cursor: pointer; }
 .pagination button:disabled { opacity: .35; cursor: default; }

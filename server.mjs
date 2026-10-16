@@ -11,6 +11,14 @@ const port = Number(process.env.PORT || 4173);
 const searchCache = new Map();
 const searchCacheTtl = 60_000;
 const maxSearchCacheEntries = 50;
+const romCache = new Map();
+const romRequests = new Map();
+const torrentCache = new Map();
+const torrentRequests = new Map();
+const downloadCacheTtl = 10 * 60_000;
+const maxCachedRoms = 32;
+const maxCachedTorrents = 4;
+const maxCachedTorrentSize = 8 * 1024 * 1024;
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -104,9 +112,34 @@ async function fetchArchive(path) {
   return response;
 }
 
+function getCached(cache, requests, key, load, shouldCache = () => true, maxEntries = Infinity) {
+  const cached = cache.get(key);
+  if (cached && cached.expiresAt > Date.now()) {
+    cache.delete(key);
+    cache.set(key, cached);
+    return Promise.resolve(cached.value);
+  }
+  if (cached) cache.delete(key);
+
+  const pending = requests.get(key);
+  if (pending) return pending;
+
+  const request = load().then(value => {
+    if (shouldCache(value)) {
+      cache.set(key, { value, expiresAt: Date.now() + downloadCacheTtl });
+      while (cache.size > maxEntries) cache.delete(cache.keys().next().value);
+    }
+    return value;
+  }).finally(() => requests.delete(key));
+  requests.set(key, request);
+  return request;
+}
+
 async function getRomTorrent(id) {
-  const detailsResponse = await fetchArchive(`/rom?id=${id}`);
-  const rom = parseRomDetails(await detailsResponse.text());
+  const rom = await getCached(romCache, romRequests, id, async () => {
+    const detailsResponse = await fetchArchive(`/rom?id=${id}`);
+    return parseRomDetails(await detailsResponse.text());
+  }, () => true, maxCachedRoms);
   if (rom.id !== id) throw new Error("Archive returned a different ROM record.");
 
   const torrentParts = rom.torrents.split("/");
@@ -114,8 +147,10 @@ async function getRomTorrent(id) {
     throw new Error("Archive returned an invalid torrent path.");
   }
   const torrentUrl = `/assets/${torrentParts.map(encodeURIComponent).join("/")}`;
-  const torrentResponse = await fetchArchive(torrentUrl);
-  const torrent = Buffer.from(await torrentResponse.arrayBuffer());
+  const torrent = await getCached(torrentCache, torrentRequests, torrentUrl, async () => {
+    const torrentResponse = await fetchArchive(torrentUrl);
+    return Buffer.from(await torrentResponse.arrayBuffer());
+  }, data => data.length <= maxCachedTorrentSize, maxCachedTorrents);
   return {
     torrent,
     selectFile: files => {
@@ -273,6 +308,19 @@ async function handleApi(requestUrl, response) {
       }
       const { torrent, selectFile } = await getRomTorrent(id);
       streamTorrentFile(torrent, selectFile, response);
+      return;
+    }
+
+    if (requestUrl.pathname === "/api/download/prepare") {
+      const id = Number(requestUrl.searchParams.get("id"));
+      if (!Number.isSafeInteger(id) || id <= 0) {
+        response.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+        response.end(JSON.stringify({ error: "A valid ROM id is required." }));
+        return;
+      }
+      await getRomTorrent(id);
+      response.writeHead(204);
+      response.end();
       return;
     }
 

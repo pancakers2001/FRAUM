@@ -22,11 +22,11 @@ npm run pack:linux
 
 The packages are written to `dist/`. Windows builds include only a portable executable, macOS builds include DMGs for Intel and Apple Silicon, and Linux builds include an AppImage. The Windows app runs without an installer. GitHub Actions builds the Intel macOS package on `macos-15-intel` and Apple Silicon on `macos-15`.
 
-Pushing a version tag such as `v1.0.1` to GitHub builds all supported packages and publishes them as assets on a GitHub Release. The workflow also runs tests before packaging each platform. To publish a release:
+Pushing a version tag such as `v1.0.2` to GitHub builds all supported packages and publishes them as assets on a GitHub Release. The workflow also runs tests before packaging each platform. To publish a release:
 
 ```sh
-git tag v1.0.1
-git push origin v1.0.1
+git tag v1.0.2
+git push origin v1.0.2
 ```
 
 Running the workflow manually from the Actions tab builds downloadable workflow artifacts but does not publish a release.
@@ -41,7 +41,7 @@ npm start
 
 Then open [http://localhost:4173](http://localhost:4173). Set `PORT` to use a different port.
 
-The desktop app starts the local server on an available loopback port. The server proxies read-only search and directory requests to MiNERVA. For downloads it temporarily stores selected torrent pieces under the operating system's temporary directory, streams the requested file to the browser, and removes the temporary data when the transfer ends or is cancelled.
+The desktop app starts the local server on an available loopback port. The server proxies read-only search and directory requests to MiNERVA. Download buttons prepare torrent metadata when focused or hovered, show immediate startup feedback when clicked, then stream only the selected file. Temporary download data is removed when the transfer ends or is cancelled.
 
 ## Tests
 

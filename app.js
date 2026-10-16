@@ -34,6 +34,7 @@ let requestController;
 let directoryPath = "/browse/";
 let directoryEntries = [];
 let directoryOffset = 0;
+const downloadPreparations = new WeakMap();
 
 async function api(path) {
   const response = await fetch(path);
@@ -103,6 +104,49 @@ function createResultCard(result, index) {
   actions.append(downloadLink);
   card.append(icon, details, actions);
   return card;
+}
+
+function prepareDownload(link) {
+  const existing = downloadPreparations.get(link);
+  if (existing) return existing;
+
+  const id = new URL(link.href).searchParams.get("id");
+  const preparation = fetch(`/api/download/prepare?id=${encodeURIComponent(id)}`)
+    .then(async response => {
+      if (response.ok) return;
+      const payload = await response.json();
+      throw new Error(payload.error || `Could not prepare download (${response.status})`);
+    })
+    .catch(error => {
+      downloadPreparations.delete(link);
+      throw error;
+    });
+  downloadPreparations.set(link, preparation);
+  return preparation;
+}
+
+function warmDownload(link) {
+  void prepareDownload(link).catch(error => {
+    link.title = `Could not prepare download: ${error.message}`;
+  });
+}
+
+function showDownloadFeedback(link) {
+  if (link.dataset.busy) return;
+  const originalLabel = link.textContent;
+  link.dataset.busy = "true";
+  link.setAttribute("aria-busy", "true");
+  link.textContent = "Preparing…";
+
+  const reset = () => {
+    delete link.dataset.busy;
+    link.removeAttribute("aria-busy");
+    link.textContent = originalLabel;
+  };
+  setTimeout(() => {
+    if (link.dataset.busy) link.textContent = "Starting download…";
+  }, 1_500);
+  setTimeout(reset, 8_000);
 }
 
 async function search() {
@@ -297,6 +341,23 @@ searchForm.addEventListener("submit", event => {
   clearTimeout(searchTimer);
   currentOffset = 0;
   search();
+});
+document.addEventListener("pointerover", event => {
+  const link = event.target.closest?.("a.download-action");
+  if (link) warmDownload(link);
+});
+document.addEventListener("focusin", event => {
+  const link = event.target.closest?.("a.download-action");
+  if (link) warmDownload(link);
+});
+document.addEventListener("click", event => {
+  const link = event.target.closest?.("a.download-action");
+  if (!link) return;
+  if (link.dataset.busy) {
+    event.preventDefault();
+    return;
+  }
+  showDownloadFeedback(link);
 });
 queryInput.addEventListener("input", () => scheduleSearch());
 for (const control of Object.values(filters)) control.addEventListener("change", () => scheduleSearch(true, 900));
