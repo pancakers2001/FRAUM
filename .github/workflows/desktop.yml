@@ -20,14 +20,10 @@ jobs:
             artifact_path: dist/*.exe
           - os: macos-15-intel
             platform: macos
-            artifact_path: |
-              dist/*.dmg
-              dist/*.zip
+            artifact_path: dist/*.dmg
           - os: ubuntu-22.04
             platform: linux
-            artifact_path: |
-              dist/*.AppImage
-              dist/*.deb
+            artifact_path: dist/*.AppImage
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -58,9 +54,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: fraum-macos-arm64
-          path: |
-            dist/*.dmg
-            dist/*.zip
+          path: dist/*.dmg
           if-no-files-found: error
 
   release:

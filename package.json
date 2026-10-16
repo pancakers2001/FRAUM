@@ -1,6 +1,6 @@
 {
   "name": "fraum",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "description": "Desktop client for searching and browsing the MiNERVA Archive.",
   "homepage": "https://minerva-archive.org/",
@@ -11,10 +11,10 @@
     "start": "node server.mjs",
     "start:desktop": "electron .",
     "test": "node --test",
-    "pack:linux": "electron-builder --linux AppImage deb --publish never",
+    "pack:linux": "electron-builder --linux AppImage --publish never",
     "pack:windows": "electron-builder --win portable --publish never",
-    "pack:macos": "electron-builder --mac dmg zip --publish never",
-    "pack:macos:arm64": "electron-builder --mac dmg zip --arm64 --publish never"
+    "pack:macos": "electron-builder --mac dmg --publish never",
+    "pack:macos:arm64": "electron-builder --mac dmg --arm64 --publish never"
   },
   "dependencies": {
     "webtorrent": "^1.9.7"
@@ -43,8 +43,7 @@
       "maintainer": "FRAUM maintainers",
       "syncDesktopName": true,
       "target": [
-        "AppImage",
-        "deb"
+        "AppImage"
       ]
     },
     "win": {
@@ -55,8 +54,7 @@
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
-        "dmg",
-        "zip"
+        "dmg"
       ]
     }
   }
