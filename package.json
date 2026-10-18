@@ -1,61 +1,17 @@
 {
   "name": "fraum",
-  "version": "1.0.4",
+  "version": "1.0.0",
   "private": true,
-  "description": "Desktop client for searching and browsing the MiNERVA Archive.",
+  "description": "Client for searching and browsing the MiNERVA Archive.",
   "homepage": "https://minerva-archive.org/",
-  "desktopName": "fraum",
   "type": "module",
-  "main": "desktop.mjs",
   "scripts": {
     "start": "node server.mjs",
-    "start:desktop": "electron .",
-    "test": "node --test",
-    "pack:linux": "electron-builder --linux AppImage --publish never",
-    "pack:windows": "electron-builder --win portable --publish never",
-    "pack:macos": "electron-builder --mac dmg --publish never",
-    "pack:macos:arm64": "electron-builder --mac dmg --arm64 --publish never"
+    "start:desktop": "cargo run --manifest-path native/Cargo.toml",
+    "build:native": "cargo build --manifest-path native/Cargo.toml --release",
+    "test": "node --test"
   },
   "dependencies": {
     "webtorrent": "^1.9.7"
-  },
-  "devDependencies": {
-    "electron": "^44.7.2",
-    "electron-builder": "^26.15.3"
-  },
-  "build": {
-    "appId": "org.fraum.archive",
-    "productName": "FRAUM",
-    "asar": true,
-    "files": [
-      "app.js",
-      "desktop.mjs",
-      "index.html",
-      "server.mjs",
-      "styles.css",
-      "package.json"
-    ],
-    "directories": {
-      "output": "dist"
-    },
-    "linux": {
-      "category": "Network",
-      "maintainer": "FRAUM maintainers",
-      "syncDesktopName": true,
-      "target": [
-        "AppImage"
-      ]
-    },
-    "win": {
-      "target": [
-        "portable"
-      ]
-    },
-    "mac": {
-      "category": "public.app-category.utilities",
-      "target": [
-        "dmg"
-      ]
-    }
   }
 }

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <title>FRAUM</title>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d9f87f"/>
+      <stop offset="1" stop-color="#b2e747"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="228" fill="url(#tile)"/>
+  <g transform="translate(512 506) scale(1.12) translate(-488 -506)" fill="#10120f" stroke="#10120f" stroke-width="48" stroke-linejoin="round">
+    <rect x="324" y="260" width="392" height="84"/>
+    <rect x="324" y="260" width="84" height="356"/>
+    <rect x="324" y="460" width="288" height="78"/>
+    <path d="M268 630H464L366 750Z"/>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 node_modules/
-dist/
+/native/target/
 .DS_Store
 Thumbs.db
 npm-debug.log*
