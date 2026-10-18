@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=FRAUM
+GenericName=MiNERVA Archive client
+Comment=Search the MiNERVA Archive and download games over BitTorrent
+Exec=fraum-native
+Icon=fraum
+Terminal=false
+Categories=Network;FileTransfer;P2P;
+StartupWMClass=fraum-native

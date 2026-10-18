@@ -56,7 +56,7 @@ Queued downloads share one BitTorrent session and clean up after each file. Nint
 
 ## Releases
 
-Pushing a version tag such as `v1.0.0` to GitHub builds the native client for Windows, Linux, and macOS (Intel and Apple Silicon) and publishes each as a single executable on a GitHub Release: `fraum-windows-x64.exe`, `fraum-linux-x64`, `fraum-macos-arm64`, and `fraum-macos-x64`. They are portable, so there is nothing to install. The workflow runs the native and browser-client tests first. To publish a release:
+Pushing a version tag such as `v1.0.0` to GitHub builds the native client for Windows, Linux, and macOS (Intel and Apple Silicon) and publishes each as a single executable on a GitHub Release: `fraum-windows-x64.exe`, `fraum-linux-x64`, `fraum-macos-arm64`, and `fraum-macos-x64`. They are portable, so there is nothing to install. Linux also gets a `.deb` (`fraum_<version>_amd64.deb`) and an `.AppImage` (`FRAUM-<version>-x86_64.AppImage`), built by `packaging/linux/build-packages.sh`. The workflow runs the native and browser-client tests first. To publish a release:
 
 ```sh
 git tag v1.0.0
@@ -69,11 +69,11 @@ Running the workflow manually from the Actions tab builds downloadable workflow 
 
 Only use these steps for a copy downloaded from the [official GitHub Releases](https://github.com/pancakers2001/FRAUM/releases) page. The executables are not signed or notarized.
 
-- **Linux:** make the file executable, then run it:
+- **Linux:** install the `.deb` (`sudo apt install ./fraum_<version>_amd64.deb`), or make the `.AppImage` executable and run it (it bundles OpenSSL, so it also works on distributions without OpenSSL 3). The bare `fraum-linux-x64` file also works:
 
   ```sh
-  chmod +x fraum-linux-x64
-  ./fraum-linux-x64
+  chmod +x FRAUM-<version>-x86_64.AppImage
+  ./FRAUM-<version>-x86_64.AppImage
   ```
 
 - **macOS:** Gatekeeper may report that the file is “damaged” or from an unidentified developer. Remove the quarantine flag, then run it (use `fraum-macos-x64` on Intel Macs):

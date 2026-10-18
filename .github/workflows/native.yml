@@ -62,6 +62,17 @@ jobs:
           name: ${{ matrix.asset }}
           path: out/${{ matrix.asset }}
           if-no-files-found: error
+      - name: Build the .deb and .AppImage
+        if: runner.os == 'Linux'
+        run: |
+          version=$(grep -m1 '^version' native/Cargo.toml | cut -d'"' -f2)
+          packaging/linux/build-packages.sh native/target/release/fraum-native "$version" out/packages
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: fraum-linux-packages
+          path: out/packages/*
+          if-no-files-found: error
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
