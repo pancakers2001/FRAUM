@@ -56,7 +56,7 @@ Queued downloads share one BitTorrent session and clean up after each file. Nint
 
 ## Releases
 
-Pushing a version tag such as `v1.0.0` to GitHub builds the native client for Windows, Linux, and macOS (Intel and Apple Silicon) and publishes the Windows `fraum-windows-x64.exe` and the Linux `fraum_<version>_amd64.deb` and `FRAUM-<version>-x86_64.AppImage` (built by `packaging/linux/build-packages.sh`) on a GitHub Release. The Windows file is portable, so there is nothing to install. The bare Linux and macOS executables (`fraum-linux-x64`, `fraum-macos-arm64`, `fraum-macos-x64`) are built too but only kept as workflow artifacts, not release downloads. The workflow runs the native and browser-client tests first. To publish a release:
+Pushing a version tag such as `v1.0.0` to GitHub builds the native client for Windows, Linux, and macOS (Intel and Apple Silicon) and publishes these downloads on a GitHub Release: `fraum-windows-x64.exe` (portable), `FRAUM-<version>-x86_64.AppImage` for Linux, and `FRAUM-<version>-x64.dmg` and `FRAUM-<version>-arm64.dmg` for Intel and Apple Silicon Macs. The AppImage is built by `packaging/linux/build-appimage.sh` and the disk images by `packaging/macos/build-dmg.sh`. The bare Linux and macOS executables are built too but only kept as workflow artifacts, not release downloads. The workflow runs the native and browser-client tests first. To publish a release:
 
 ```sh
 git tag v1.0.0
@@ -69,14 +69,18 @@ Running the workflow manually from the Actions tab builds downloadable workflow 
 
 Only use these steps for a copy downloaded from the [official GitHub Releases](https://github.com/pancakers2001/FRAUM/releases) page. The files are not signed or notarized.
 
-- **Linux:** install the `.deb` (`sudo apt install ./fraum_<version>_amd64.deb`), or make the `.AppImage` executable and run it (it bundles OpenSSL, so it also works on distributions without OpenSSL 3).:
+- **Linux:** make the `.AppImage` executable and run it (it bundles OpenSSL, so it works on distributions without OpenSSL 3):
 
   ```sh
   chmod +x FRAUM-<version>-x86_64.AppImage
   ./FRAUM-<version>-x86_64.AppImage
   ```
 
-- **macOS:** releases don't include a Mac download. Build it with `cargo build --release --manifest-path native/Cargo.toml`, or download the `fraum-macos-arm64` / `fraum-macos-x64` artifact from a workflow run on the Actions tab. Gatekeeper may then report that the file is “damaged” or from an unidentified developer; remove the quarantine flag with `xattr -d com.apple.quarantine <file>` and make it executable with `chmod +x <file>`.
+- **macOS:** open the `.dmg` for your Mac (`arm64` for Apple Silicon, `x64` for Intel) and drag FRAUM to Applications. The app is only ad-hoc signed, so Gatekeeper may say it is “damaged” or from an unidentified developer; right-click the app and choose **Open**, or remove the quarantine flag:
+
+  ```sh
+  xattr -dr com.apple.quarantine /Applications/FRAUM.app
+  ```
 
 - **Windows:** double-click `fraum-windows-x64.exe`. If SmartScreen warns about an unrecognized app, choose **More info**, then **Run anyway**.
 
